@@ -10,8 +10,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ClothingItemRepository extends JpaRepository<ClothingItem, Long> {
-
-
     @Query("SELECT c FROM ClothingItem c WHERE LOWER(c.description) LIKE LOWER(CONCAT('%', :description, '%'))")
     Page<ClothingItem> findByDescriptionContainingIgnoreCase(@Param("description") String description, Pageable pageable);
-    }
+}

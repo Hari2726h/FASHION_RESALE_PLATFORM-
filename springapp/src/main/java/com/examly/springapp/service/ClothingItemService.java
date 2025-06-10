@@ -13,31 +13,29 @@ import java.util.List;
 public class ClothingItemService {
 
     @Autowired
-    private ClothingItemRepository clothingItemRepository;
-
-    public ClothingItem saveClothingItem(ClothingItem clothingItem) {
-        return clothingItemRepository.save(clothingItem);
-    }
+    private ClothingItemRepository repository;
 
     public List<ClothingItem> getAllClothingItems() {
-        return clothingItemRepository.findAll();
-        }
+        return repository.findAll();
+    }
 
-        public ClothingItem getClothingItemById(Long id) {
-            return clothingItemRepository.findById(id)
-            .orElseThrow(() -> new RuntimeException("Clothing item not found with id: " + id));
-            }
+    public Page<ClothingItem> getAllClothingItemsPaginated(Pageable pageable) {
+        return repository.findAll(pageable);
+    }
 
-        
+    public ClothingItem getClothingItemById(Long id) {
+        return repository.findById(id).orElse(null);
+    }
 
-                public void deleteClothingItem(Long id) {
-                    clothingItemRepository.deleteById(id);
-                }
+    public ClothingItem saveClothingItem(ClothingItem item) {
+        return repository.save(item);
+    }
 
-                public Page<ClothingItem> findClothingItemsByDescription(String description, Pageable pageable) {
-                    return clothingItemRepository.findByDescriptionContainingIgnoreCase(description, pageable);
-                }
-                    public Page<ClothingItem> getAllClothingItemsPaginated(Pageable pageable) {
-                        return clothingItemRepository.findAll(pageable);
-                    }
-                    }
+    public void deleteClothingItem(Long id) {
+        repository.deleteById(id);
+    }
+
+    public Page<ClothingItem> findClothingItemsByDescription(String description, Pageable pageable) {
+        return repository.findByDescriptionContainingIgnoreCase(description, pageable);
+    }
+}

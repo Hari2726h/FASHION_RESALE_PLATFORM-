@@ -1,6 +1,7 @@
 package com.examly.springapp.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,6 +27,12 @@ public class ReviewService {
 
     public List<Review> getAllReviews() {
         return reviewRepository.findAll();
+    }
+
+    public List<Review> getReviewsByUserId(Long userId) {
+        return reviewRepository.findAll().stream()
+                .filter(r -> r.getUser().getId().equals(userId))
+                .collect(Collectors.toList());
     }
 
     public Review saveReview(Review review, Long userId, Long clothingItemId) {

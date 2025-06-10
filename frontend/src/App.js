@@ -1,106 +1,68 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-
-// Import your admin components
-import Register from "./admin/Register";
-import Login from "./admin/Login";
-import Dashboard from "./admin/Dashboard"; // Your Dashboard.jsx
-import Users from "./admin/Users";           // Your Users.jsx
-import ClothingItems from "./admin/ClothingItems"; // Your ClothingItems.jsx
-import Orders from "./admin/Orders";         // Your Orders.jsx
-import Transactions from "./admin/Transactions";   // Your Transactions.jsx
-import Reviews from "./admin/Reviews";       // Your Reviews.jsx
-import Reports from "./admin/Reports";       // Your Reports.jsx
-import Settings from "./admin/Settings";     // Your Settings.jsx
-
-// Simple authentication check (replace with your logic)
-const isAuthenticated = () => {
-  return !!localStorage.getItem("authToken");
-};
-
-// Protected Route wrapper
-const PrivateRoute = ({ children }) => {
-  return isAuthenticated() ? children : <Navigate to="/admin/login" />;
-};
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Login from './component/Login';
+import Register from './component/Register';
+import UserDashboard from './user/UserDashboard';
+import AdminDashboard from './admin/AdminDashboard';
+import UpdateAccount from './user/UpdateAccount';
+import AdminClothingManager from './admin/AdminClothingManager';
+import UserClothingView from './user/UserClothingView';
+import AdminUserManager from './admin/AdminUserManager';
+import { CartProvider } from './component/CartContext'; // ✅ Add this
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function App() {
+  const [user, setUser] = useState(() => {
+    const stored = localStorage.getItem('user');
+    return stored ? JSON.parse(stored) : null;
+  });
+
+  const logout = () => {
+    localStorage.removeItem('user');
+    window.location.reload(); // full reload so context resets
+  };
+
+  if (!user) {
+    return (
+      <Router>
+        <Routes>
+          <Route path="/login" element={<Login setUser={setUser} />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="*" element={<Navigate to="/login" />} />
+        </Routes>
+      </Router>
+    );
+  }
+
   return (
-    <Router>
-      <Routes>
-        {/* Public routes */}
-        <Route path="/admin/register" element={<Register />} />
-        <Route path="/admin/login" element={<Login />} />
+    <CartProvider user={user}>
+      <Router>
+        <Routes>
+          <Route
+            path="/"
+            element={user.role === 'ADMIN' ? (
+              <AdminDashboard user={user} logout={logout} />
+            ) : (
+              <UserDashboard user={user} logout={logout} />
+            )}
+          />
+          <Route path="/account/update" element={<UpdateAccount user={user} setUser={setUser} />} />
 
-        {/* Protected admin routes */}
-        <Route
-          path="/admin/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/users"
-          element={
-            <PrivateRoute>
-              <Users />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/clothing-items"
-          element={
-            <PrivateRoute>
-              <ClothingItems />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/orders"
-          element={
-            <PrivateRoute>
-              <Orders />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/transactions"
-          element={
-            <PrivateRoute>
-              <Transactions />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/reviews"
-          element={
-            <PrivateRoute>
-              <Reviews />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/reports"
-          element={
-            <PrivateRoute>
-              <Reports />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin/settings"
-          element={
-            <PrivateRoute>
-              <Settings />
-            </PrivateRoute>
-          }
-        />
+          {user.role === 'ADMIN' && (
+            <>
+              <Route path="/admin/clothing" element={<AdminClothingManager />} />
+              <Route path="/admin/users" element={<AdminUserManager />} />
+            </>
+          )}
 
-        {/* Redirect any unknown path */}
-        <Route path="*" element={<Navigate to="/admin/login" />} />
-      </Routes>
-    </Router>
+          {user.role === 'USER' && (
+            <Route path="/clothing" element={<UserClothingView userId={user.id} />} />
+          )}
+
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </Router>
+    </CartProvider>
   );
 }
 

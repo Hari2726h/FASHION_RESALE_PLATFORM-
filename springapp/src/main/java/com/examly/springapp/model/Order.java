@@ -1,13 +1,10 @@
 package com.examly.springapp.model;
 
+import jakarta.persistence.*;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.annotation.Generated;
-import jakarta.persistence.*;
-import lombok.Data;
-@Data
 @Entity
 @Table(name = "orders")
 public class Order {
@@ -17,8 +14,12 @@ public class Order {
     private Long id;
 
     private Date orderDate;
+
     private String paymentStatus;
+
     private String shippingStatus;
+
+    private boolean confirmed = false; // New field to track order confirmation
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -34,21 +35,31 @@ public class Order {
 
     public Order() {}
 
-    // Getters and setters...
+    // Getters and setters
 
-    public User getUser() {
-        return user;
-    }
+    public Long getId() { return id; }
 
-    public void setUser(User user) {
-        this.user = user;
-    }
+    public Date getOrderDate() { return orderDate; }
 
-    public Set<ClothingItem> getClothingItems() {
-        return clothingItems;
-    }
+    public void setOrderDate(Date orderDate) { this.orderDate = orderDate; }
 
-    public void setClothingItems(Set<ClothingItem> clothingItems) {
-        this.clothingItems = clothingItems;
-    }
+    public String getPaymentStatus() { return paymentStatus; }
+
+    public void setPaymentStatus(String paymentStatus) { this.paymentStatus = paymentStatus; }
+
+    public String getShippingStatus() { return shippingStatus; }
+
+    public void setShippingStatus(String shippingStatus) { this.shippingStatus = shippingStatus; }
+
+    public boolean isConfirmed() { return confirmed; }
+
+    public void setConfirmed(boolean confirmed) { this.confirmed = confirmed; }
+
+    public User getUser() { return user; }
+
+    public void setUser(User user) { this.user = user; }
+
+    public Set<ClothingItem> getClothingItems() { return clothingItems; }
+
+    public void setClothingItems(Set<ClothingItem> clothingItems) { this.clothingItems = clothingItems; }
 }

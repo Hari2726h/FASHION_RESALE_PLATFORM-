@@ -1,14 +1,16 @@
 package com.examly.springapp.service;
 
-import java.util.List;
-
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import com.examly.springapp.model.Order;
 import com.examly.springapp.model.User;
 import com.examly.springapp.repository.OrderRepository;
 import com.examly.springapp.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
 
 @Service
 public class OrderService {
@@ -29,13 +31,27 @@ public class OrderService {
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
     }
+// Add this in OrderService class
+public Page<Order> getAllOrders(Pageable pageable) {
+    return orderRepository.findAll(pageable);
+}
+    public List<Order> getAllConfirmedOrders() {
+        return orderRepository.findByConfirmed(true);
+    }
 
-    public void deleteOrder(Long id) {
+    public boolean deleteOrder(Long id) {
         orderRepository.deleteById(id);
+        return false;
     }
 
     public Order getOrderById(Long id) {
         return orderRepository.findById(id)
             .orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+    }
+
+    public Order confirmOrder(Long id) {
+        Order order = getOrderById(id);
+        order.setConfirmed(true);
+        return orderRepository.save(order);
     }
 }

@@ -1,68 +1,72 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Login from './component/Login';
-import Register from './component/Register';
-import UserDashboard from './user/UserDashboard';
-import AdminDashboard from './admin/AdminDashboard';
-import UpdateAccount from './user/UpdateAccount';
-import AdminClothingManager from './admin/AdminClothingManager';
-import UserClothingView from './user/UserClothingView';
-import AdminUserManager from './admin/AdminUserManager';
-import { CartProvider } from './component/CartContext'; // ✅ Add this
-import 'bootstrap/dist/css/bootstrap.min.css';
-
+import Login from './components/Login';
+import Register from './components/Register';
+import AdminDashboard from './components/AdminDashboard';
+import UserDashboard from './components/UserDashboard';
+import CartPage from './components/CartPage'; 
+import AdminOrders from './components/AdminOrders'; 
 function App() {
   const [user, setUser] = useState(() => {
-    const stored = localStorage.getItem('user');
-    return stored ? JSON.parse(stored) : null;
+    const saved = localStorage.getItem('user');
+    return saved ? JSON.parse(saved) : null;
   });
 
-  const logout = () => {
-    localStorage.removeItem('user');
-    window.location.reload(); // full reload so context resets
-  };
-
-  if (!user) {
-    return (
-      <Router>
-        <Routes>
-          <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="*" element={<Navigate to="/login" />} />
-        </Routes>
-      </Router>
-    );
-  }
+  useEffect(() => {
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    } else {
+      localStorage.removeItem('user');
+    }
+  }, [user]);
 
   return (
-    <CartProvider user={user}>
-      <Router>
-        <Routes>
-          <Route
-            path="/"
-            element={user.role === 'ADMIN' ? (
-              <AdminDashboard user={user} logout={logout} />
+    <Router>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            user ? (
+              user.role === 'ADMIN' ? (
+                <AdminDashboard user={user} setUser={setUser} />
+              ) : (
+                <UserDashboard user={user} setUser={setUser} />
+              )
             ) : (
-              <UserDashboard user={user} logout={logout} />
-            )}
-          />
-          <Route path="/account/update" element={<UpdateAccount user={user} setUser={setUser} />} />
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            user && user.role === 'ADMIN' ? (
+              <AdminDashboard user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route
+          path="/user"
+          element={
+            user && user.role === 'USER' ? (
+              <UserDashboard user={user} setUser={setUser} />
+            ) : (
+              <Navigate to="/login" />
+            )
+          }
+        />
+        <Route path="/login" element={<Login setUser={setUser} />} />
+        <Route path="/register" element={<Register />} />
+        <Route
+  path="/cart"
+  element={user ? <CartPage user={user} /> : <Navigate to="/login" />}
+/>
+<Route path="/admin/orders" element={<AdminOrders />} />
 
-          {user.role === 'ADMIN' && (
-            <>
-              <Route path="/admin/clothing" element={<AdminClothingManager />} />
-              <Route path="/admin/users" element={<AdminUserManager />} />
-            </>
-          )}
-
-          {user.role === 'USER' && (
-            <Route path="/clothing" element={<UserClothingView userId={user.id} />} />
-          )}
-
-          <Route path="*" element={<Navigate to="/" />} />
-        </Routes>
-      </Router>
-    </CartProvider>
+      </Routes>
+    </Router>
   );
 }
 

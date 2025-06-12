@@ -10,27 +10,41 @@ export const api = {
   getUserById: (id) => axios.get(`${API_BASE}/admin/users/${id}`),
   getAllUsers: () => axios.get(`${API_BASE}/admin/users`),
   deleteUser: (id) => axios.delete(`${API_BASE}/admin/users/${id}`),
-
-  // 👕 Clothing Items
+// Clothing Items
   getAllClothingItems: () => axios.get(`${API_BASE}/clothing-items`),
   getClothingItemById: (id) => axios.get(`${API_BASE}/clothing-items/${id}`),
   createClothingItem: (data) => axios.post(`${API_BASE}/clothing-items`, data),
   updateClothingItem: (id, data) => axios.put(`${API_BASE}/clothing-items/${id}`, data),
   deleteClothingItem: (id) => axios.delete(`${API_BASE}/clothing-items/${id}`),
 
-  // 🛒 Cart
-  getCartByUserId: (userId) => axios.get(`${API_BASE}/cart/${userId}`),
- addToCart: (userId, itemId) =>
-  axios.post(`${API_BASE}/cart/${userId}/add/${itemId}`),
-  removeItemFromCart: (userId, itemId) => axios.delete(`${API_BASE}/cart/${userId}/remove/${itemId}`),
-  updateCartItemQuantity: (userId, itemId, quantity) =>
-    axios.put(`${API_BASE}/cart/${userId}/item/${itemId}`, { quantity }),
-  clearCart: (userId) => axios.delete(`${API_BASE}/cart/${userId}/clear`),
-
+  // Cart
+  getCartByUserId: (userId) => axios.get(`${API_BASE}/carts/${userId}`),
+  addItemToCart: (userId, itemId) =>
+    axios.post(`${API_BASE}/carts/${userId}/add/${itemId}`),
+  removeItemFromCart: (userId, itemId) => axios.delete(`${API_BASE}/carts/${userId}/remove/${itemId}`),
+  clearCart: (userId) => axios.delete(`${API_BASE}/carts/${userId}/clear`),
   // 📦 Orders
-  placeOrderFromCart: (userId) => axios.post(`${API_BASE}/orders/user/${userId}/place`),
-  getOrdersByUserId: (userId) => axios.get(`${API_BASE}/orders/user/${userId}`),
-  getAllOrders: () => axios.get(`${API_BASE}/orders`),
-  confirmOrder: (orderId) => axios.put(`${API_BASE}/orders/${orderId}/confirm`),
-  deleteOrder: (orderId) => axios.delete(`${API_BASE}/orders/${orderId}`),
+  getAllOrders: () => axios.get(`${API_BASE}/orders`), // Admin
+  confirmOrder: (orderId) => axios.put(`${API_BASE}/orders/${orderId}/confirm`), // Admin
+  placeOrderFromCart: (userId) => axios.post(`${API_BASE}/orders/user/${userId}/place`), // User
+  getUserOrder: (userId, orderId) => axios.get(`${API_BASE}/orders/user/${userId}/${orderId}`), // User
+  deleteOrder: (orderId) => axios.delete(`${API_BASE}/orders/${orderId}`), // Admin or User
+
+  // ⭐ Reviews
+  getAllReviews: () => axios.get(`${API_BASE}/reviews`),
+  getUserReviews: (userId) => axios.get(`${API_BASE}/reviews/user/${userId}`),
+  getReviewById: (id) => axios.get(`${API_BASE}/reviews/${id}`),
+  createReview: (userId, clothingItemId, reviewData) =>
+    axios.post(`${API_BASE}/reviews/user/${userId}/item/${clothingItemId}`, reviewData),
+  updateReview: (id, reviewData) => axios.put(`${API_BASE}/reviews/${id}`, reviewData),
+  deleteReview: (id) => axios.delete(`${API_BASE}/reviews/${id}`),
+
+  // 💰 Transactions
+  getAllTransactions: () => axios.get(`${API_BASE}/transactions`),
+  getTransactionsByUser: (userId) => axios.get(`${API_BASE}/transactions/user/${userId}`),
+  getTransactionById: (id) => axios.get(`${API_BASE}/transactions/${id}`),
+  createTransaction: (userId, itemId, amount) =>
+    axios.post(`${API_BASE}/transactions/user/${userId}/item/${itemId}`, { amount }),
+  confirmTransaction: (id) => axios.put(`${API_BASE}/transactions/${id}/confirm`),
+  deleteTransaction: (id) => axios.delete(`${API_BASE}/transactions/${id}`),
 };

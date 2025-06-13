@@ -40,9 +40,14 @@ public Page<Order> getAllOrders(Pageable pageable) {
     }
 
     public boolean deleteOrder(Long id) {
+    if (orderRepository.existsById(id)) {
         orderRepository.deleteById(id);
-        return false;
+        return true; // ✅ Successfully deleted
+    } else {
+        return false; // ❌ Order not found
     }
+}
+
 
     public Order getOrderById(Long id) {
         return orderRepository.findById(id)

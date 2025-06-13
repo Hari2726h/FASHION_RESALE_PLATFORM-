@@ -74,20 +74,23 @@ function CartPage({ user }) {
     }
   };
 
-  const handleDecrease = async (itemId) => {
+ const handleDecrease = async (itemId) => {
+  const currentCount = getCartItemsWithCount().find(item => item.id === itemId)?.count || 0;
+
+  if (currentCount === 1) {
+    // If only one item left, remove it entirely
+    await handleRemove(itemId);
+  } else {
     try {
-      // Optimistically update UI
       updateItemCountLocally(itemId, -1);
-      // Call API to update backend
       await api.removeItemFromCart(user.id, itemId);
-      // Optionally fetch updated cart from server
-      // await fetchCart();
     } catch (error) {
       console.error('Failed to decrease item count:', error);
-      // Revert optimistic update
-      updateItemCountLocally(itemId, 1);
+      updateItemCountLocally(itemId, 1); // revert
     }
-  };
+  }
+};
+
 
   const handleRemove = async (itemId) => {
     try {
@@ -108,15 +111,15 @@ function CartPage({ user }) {
   };
 
   const handlePlaceOrder = async () => {
-    try {
-      await api.placeOrderFromCart(user.id);
-      alert('✅ Order placed successfully!');
-      await fetchCart();
-    } catch (err) {
-      alert('❌ Failed to place order.');
-      console.error(err);
-    }
-  };
+  if (!cart?.clothingItems?.length) return;
+
+  const totalAmount = cart.clothingItems.length * 100; // 💵 For example, ₹100/item
+
+  navigate('/transaction', {
+    state: { totalAmount }
+  });
+};
+
 
   return (
     <div className="container mt-5">
@@ -149,11 +152,11 @@ function CartPage({ user }) {
                       ➕
                     </button>
                     <button
-                      className="btn btn-sm btn-warning me-2"
-                      onClick={() => handleDecrease(item.id)}
-                      aria-label={`Decrease quantity of ${item.description}`}
-                      disabled={item.count <= 1}
-                    >
+  className="btn btn-sm btn-warning me-2"
+  onClick={() => handleDecrease(item.id)}
+  aria-label={`Decrease quantity of ${item.description}`}
+>
+
                       ➖
                     </button>
                     <button

@@ -10,6 +10,8 @@ export const api = {
   getUserById: (id) => axios.get(`${API_BASE}/admin/users/${id}`),
   getAllUsers: () => axios.get(`${API_BASE}/admin/users`),
   deleteUser: (id) => axios.delete(`${API_BASE}/admin/users/${id}`),
+  updateOwnAccount: (id, data) => axios.put(`${API_BASE}/account/${id}`, data),
+
 // Clothing Items
   getAllClothingItems: () => axios.get(`${API_BASE}/clothing-items`),
   getClothingItemById: (id) => axios.get(`${API_BASE}/clothing-items/${id}`),
@@ -34,8 +36,8 @@ export const api = {
   getAllReviews: () => axios.get(`${API_BASE}/reviews`),
   getUserReviews: (userId) => axios.get(`${API_BASE}/reviews/user/${userId}`),
   getReviewById: (id) => axios.get(`${API_BASE}/reviews/${id}`),
-  createReview: (userId, clothingItemId, reviewData) =>
-    axios.post(`${API_BASE}/reviews/user/${userId}/item/${clothingItemId}`, reviewData),
+ createReview: (userId, itemId, data) =>
+  axios.post(`${API_BASE}/reviews/user/${userId}/item/${itemId}`, data),
   updateReview: (id, reviewData) => axios.put(`${API_BASE}/reviews/${id}`, reviewData),
   deleteReview: (id) => axios.delete(`${API_BASE}/reviews/${id}`),
 

@@ -4,8 +4,11 @@ import Login from './components/Login';
 import Register from './components/Register';
 import AdminDashboard from './components/AdminDashboard';
 import UserDashboard from './components/UserDashboard';
-import CartPage from './components/CartPage'; 
-import AdminOrders from './components/AdminOrders'; 
+import CartPage from './components/CartPage';
+import AdminOrders from './components/AdminOrders';
+import TransactionPage from './components/TransactionPage';
+import AdminReviewPage from './components/AdminReviewPage';
+import UserProfile from './components/UserProfile';
 function App() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
@@ -59,12 +62,11 @@ function App() {
         />
         <Route path="/login" element={<Login setUser={setUser} />} />
         <Route path="/register" element={<Register />} />
-        <Route
-  path="/cart"
-  element={user ? <CartPage user={user} /> : <Navigate to="/login" />}
-/>
-<Route path="/admin/orders" element={<AdminOrders />} />
-
+        <Route path="/cart" element={user ? <CartPage user={user} /> : <Navigate to="/login" />} />
+        <Route path="/admin/orders" element={<AdminOrders />} />
+        <Route path="/admin/reviews" element={<AdminReviewPage />} />
+<Route path="/profile" element={<UserProfile user={user} />} />
+        <Route path="/transaction" element={<TransactionPage user={user} />} />
       </Routes>
     </Router>
   );

@@ -6,10 +6,9 @@ function AdminOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState(null);
-  const [orderCart, setOrderCart] = useState(null);
   const [error, setError] = useState(null);
+  const [transactions, setTransactions] = useState([]);
 
-  // Fetch all orders on mount
   useEffect(() => {
     fetchOrders();
   }, []);
@@ -28,38 +27,36 @@ function AdminOrders() {
     }
   };
 
-  // Fetch cart details for the selected order (to see what was ordered)
-  const fetchOrderCart = async (userId) => {
-    try {
-      const res = await api.getCartByUserId(userId);
-      setOrderCart(res.data);
-    } catch (err) {
-      console.error('Failed to fetch cart for order:', err);
-      setOrderCart(null);
-    }
-  };
+ const handleSelectOrder = async (order) => {
+  setSelectedOrder(order);
+  try {
+    const res = await api.getTransactionsByUser(order.user?.id || order.userId);
+    setTransactions(res.data || []);
+  } catch (err) {
+    console.error("Failed to load transactions:", err);
+    setTransactions([]);
+  }
+};
+const getTransactionsForOrder = () => {
+  if (!selectedOrder || !selectedOrder.clothingItems) return [];
+  const itemIdsInOrder = selectedOrder.clothingItems.map(item => item.id);
+  return transactions.filter(txn =>
+    itemIdsInOrder.includes(txn.clothingItem?.id)
+  );
+};
 
-  // When clicking an order, load details + cart
-  const handleSelectOrder = async (order) => {
-    setSelectedOrder(order);
-    await fetchOrderCart(order.userId);
-  };
-
-  // Confirm an order
   const handleConfirmOrder = async (orderId) => {
     try {
       await api.confirmOrder(orderId);
       alert('Order confirmed!');
       fetchOrders();
       setSelectedOrder(null);
-      setOrderCart(null);
     } catch (err) {
       console.error(err);
       alert('Failed to confirm order.');
     }
   };
 
-  // Delete an order
   const handleDeleteOrder = async (orderId) => {
     if (!window.confirm('Are you sure you want to delete this order?')) return;
     try {
@@ -67,11 +64,22 @@ function AdminOrders() {
       alert('Order deleted!');
       fetchOrders();
       setSelectedOrder(null);
-      setOrderCart(null);
     } catch (err) {
       console.error(err);
       alert('Failed to delete order.');
     }
+  };
+
+  const getGroupedItems = (items) => {
+    const itemMap = {};
+    for (const item of items) {
+      if (itemMap[item.id]) {
+        itemMap[item.id].count += 1;
+      } else {
+        itemMap[item.id] = { ...item, count: 1 };
+      }
+    }
+    return Object.values(itemMap);
   };
 
   return (
@@ -80,24 +88,26 @@ function AdminOrders() {
 
       {loading && <p>Loading orders...</p>}
       {error && <p className="text-danger">{error}</p>}
-
       {!loading && orders.length === 0 && <p>No orders found.</p>}
 
       <div className="row">
+        {/* Orders List */}
         <div className="col-md-6">
           <ul className="list-group mb-3">
             {orders.map((order) => (
               <li
                 key={order.id}
                 className={`list-group-item d-flex justify-content-between align-items-center ${
-                  selectedOrder?.id === order.id ? 'active' : ''
+                  selectedOrder?.id === order.id ? 'active text-white bg-primary' : ''
                 }`}
                 style={{ cursor: 'pointer' }}
                 onClick={() => handleSelectOrder(order)}
               >
                 <div>
-                  <strong>Order #{order.id}</strong> by User {order.userId} <br />
-                  Status: {order.confirmed ? 'Confirmed' : 'Pending'}
+                  <strong>Order #{order.id}</strong> by User {order.user?.id || order.userId}<br />
+                  Status: <span className={order.confirmed ? 'text-success' : 'text-warning'}>
+                    {order.confirmed ? 'Confirmed' : 'Pending'}
+                  </span>
                 </div>
                 <div>
                   <button
@@ -125,28 +135,24 @@ function AdminOrders() {
           </ul>
         </div>
 
+        {/* Order Details */}
         <div className="col-md-6">
           {selectedOrder ? (
             <>
               <h5>Order Details - #{selectedOrder.id}</h5>
-              <p><strong>User ID:</strong> {selectedOrder.userId}</p>
-              <p><strong>Status:</strong> {selectedOrder.confirmed ? 'Confirmed' : 'Pending'}</p>
-              <h6>Items in Cart at Order Time:</h6>
-              {!orderCart ? (
-                <p>Loading cart details...</p>
-              ) : !orderCart.clothingItems || orderCart.clothingItems.length === 0 ? (
-                <p>No items in cart.</p>
+              <p><strong>User ID:</strong> {selectedOrder.user?.id || selectedOrder.userId}</p>
+              <p><strong>Status:</strong>{' '}
+                <span className={selectedOrder.confirmed ? 'text-success' : 'text-warning'}>
+                  {selectedOrder.confirmed ? 'Confirmed' : 'Pending'}
+                </span>
+              </p>
+
+              <h6>Items Ordered:</h6>
+              {!selectedOrder.clothingItems || selectedOrder.clothingItems.length === 0 ? (
+                <p>No items in this order.</p>
               ) : (
                 <ul className="list-group">
-                  {orderCart.clothingItems.reduce((acc, item) => {
-                    const found = acc.find(i => i.id === item.id);
-                    if (found) {
-                      found.count += 1;
-                    } else {
-                      acc.push({ ...item, count: 1 });
-                    }
-                    return acc;
-                  }, []).map((item) => (
+                  {getGroupedItems(selectedOrder.clothingItems).map((item) => (
                     <li key={item.id} className="list-group-item">
                       {item.description} - Size: {item.size} — Quantity: {item.count}
                     </li>
@@ -157,6 +163,24 @@ function AdminOrders() {
           ) : (
             <p>Select an order to view details.</p>
           )}
+          <h6 className="mt-4">Transactions for this Order:</h6>
+{getTransactionsForOrder().length === 0 ? (
+  <p>No matching transactions found for this order.</p>
+) : (
+  <ul className="list-group">
+    {getTransactionsForOrder().map((txn) => (
+      <li key={txn.id} className="list-group-item">
+        <strong>Txn #{txn.id}</strong> — ₹{txn.transactionAmount}<br />
+        Item: {txn.clothingItem?.description} — Size: {txn.clothingItem?.size}<br />
+        Date: {new Date(txn.transactionDate).toLocaleString()}<br />
+        Status: <span className={txn.confirmed ? "text-success" : "text-warning"}>
+          {txn.confirmed ? "Confirmed" : "Pending"}
+        </span>
+      </li>
+    ))}
+  </ul>
+)}
+
         </div>
       </div>
     </div>

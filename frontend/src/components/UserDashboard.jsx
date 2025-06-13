@@ -2,6 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../api';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Navbar from './Navbar';
+import Footer from './Footer';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function UserDashboard({ user }) {
   const [clothingItems, setClothingItems] = useState([]);
@@ -34,22 +38,23 @@ useEffect(() => {
   };
 
   const handleAddToCart = async (itemId) => {
-    try {
-      const response = await api.addItemToCart(user.id, itemId);
+  try {
+    const response = await api.addItemToCart(user.id, itemId);
 
-      if (
-        response?.data?.clothingItems &&
-        response.data.clothingItems.find((item) => item.id === itemId)
-      ) {
-        alert('✅ Item successfully added to cart!');
-      } else {
-        alert('⚠️ Could not confirm item was added. Please check again.');
-      }
-    } catch (error) {
-      console.error('Error adding item to cart:', error);
-      alert('❌ Failed to add item to cart.');
+    if (
+      response?.data?.clothingItems &&
+      response.data.clothingItems.find((item) => item.id === itemId)
+    ) {
+      toast.success('✅ Item successfully added to cart!');
+    } else {
+      toast.warning('⚠️ Could not confirm item was added. Please check again.');
     }
-  };
+  } catch (error) {
+    console.error('Error adding item to cart:', error);
+    toast.error('❌ Failed to add item to cart.');
+  }
+};
+
 
   const handleSearchChange = (e) => {
     setSearch(e.target.value);
@@ -68,12 +73,14 @@ useEffect(() => {
   };
 
   return (
+    <>
+    <Navbar user={user} />
     <div className="container mt-4">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h2>User Dashboard</h2>
-        <button className="btn btn-danger" onClick={handleLogout}>
+        {/* <button className="btn btn-danger" onClick={handleLogout}>
           Logout
-        </button>
+        </button> */}
       </div>
 
       <input
@@ -127,6 +134,18 @@ useEffect(() => {
 
       </div>
     </div>
+     <Footer />
+     <ToastContainer
+  position="top-right"
+  autoClose={2000}
+  hideProgressBar={false}
+  newestOnTop={false}
+  closeOnClick
+  pauseOnHover
+  draggable
+/>
+
+    </>
   );
 }
 

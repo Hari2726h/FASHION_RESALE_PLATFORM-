@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { api } from '../api';
 import { useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Footer from './Footer';
+import Navbar from './Navbar';
 
 function CartPage({ user }) {
   const [cart, setCart] = useState(null);
@@ -24,7 +26,6 @@ function CartPage({ user }) {
     }
   };
 
-  // Helper to get items grouped by id with count
   const getCartItemsWithCount = () => {
     if (!cart?.clothingItems) return [];
     const counts = {};
@@ -38,63 +39,47 @@ function CartPage({ user }) {
     return Object.values(counts);
   };
 
-  // Optimistically update cart in state
   const updateItemCountLocally = (itemId, change) => {
     if (!cart) return;
     const items = [...cart.clothingItems];
     if (change > 0) {
-      // Add one item with the itemId to the clothingItems array
-      // Assuming clothingItems contains multiple identical items for quantity
       const itemToAdd = items.find((item) => item.id === itemId);
-      if (itemToAdd) {
-        items.push(itemToAdd); // add one more
-      }
-    } else if (change < 0) {
-      // Remove one item with itemId from the array
+      if (itemToAdd) items.push(itemToAdd);
+    } else {
       const indexToRemove = items.findIndex((item) => item.id === itemId);
-      if (indexToRemove !== -1) {
-        items.splice(indexToRemove, 1);
-      }
+      if (indexToRemove !== -1) items.splice(indexToRemove, 1);
     }
     setCart({ ...cart, clothingItems: items });
   };
 
   const handleIncrease = async (itemId) => {
     try {
-      // Optimistically update UI
       updateItemCountLocally(itemId, 1);
-      // Call API to update backend
       await api.addItemToCart(user.id, itemId);
-      // Optionally fetch updated cart from server
-      // await fetchCart();
     } catch (error) {
       console.error('Failed to increase item count:', error);
-      // Revert optimistic update
       updateItemCountLocally(itemId, -1);
     }
   };
 
- const handleDecrease = async (itemId) => {
-  const currentCount = getCartItemsWithCount().find(item => item.id === itemId)?.count || 0;
-
-  if (currentCount === 1) {
-    // If only one item left, remove it entirely
-    await handleRemove(itemId);
-  } else {
-    try {
-      updateItemCountLocally(itemId, -1);
-      await api.removeItemFromCart(user.id, itemId);
-    } catch (error) {
-      console.error('Failed to decrease item count:', error);
-      updateItemCountLocally(itemId, 1); // revert
+  const handleDecrease = async (itemId) => {
+    const currentCount = getCartItemsWithCount().find(item => item.id === itemId)?.count || 0;
+    if (currentCount === 1) {
+      await handleRemove(itemId);
+    } else {
+      try {
+        updateItemCountLocally(itemId, -1);
+        await api.removeItemFromCart(user.id, itemId);
+      } catch (error) {
+        console.error('Failed to decrease item count:', error);
+        updateItemCountLocally(itemId, 1);
+      }
     }
-  }
-};
-
+  };
 
   const handleRemove = async (itemId) => {
     try {
-      await api.removeItemFromCart(user.id, itemId, true); // Assuming this clears all quantities of this item, or you can loop to remove all
+      await api.removeItemFromCart(user.id, itemId, true);
       await fetchCart();
     } catch (error) {
       console.error('Failed to remove item:', error);
@@ -110,79 +95,90 @@ function CartPage({ user }) {
     }
   };
 
-  const handlePlaceOrder = async () => {
-  if (!cart?.clothingItems?.length) return;
+  const handlePlaceOrder = () => {
+    if (!cart?.clothingItems?.length) return;
+    const totalAmount = cart.clothingItems.length * 100;
+    navigate('/transaction', { state: { totalAmount } });
+  };
 
-  const totalAmount = cart.clothingItems.length * 100; // 💵 For example, ₹100/item
-
-  navigate('/transaction', {
-    state: { totalAmount }
-  });
-};
-
+  const cartItems = getCartItemsWithCount();
+  const totalPrice = cart?.clothingItems?.length * 100 || 0;
 
   return (
-    <div className="container mt-5">
-      <h2>Your Cart</h2>
-      {!cart || !cart.clothingItems.length ? (
-        <p className="text-muted">🛒 Your cart is empty.</p>
-      ) : (
-        <>
-          <table className="table table-bordered mt-4 align-middle">
-            <thead className="table-light">
-              <tr>
-                <th>Description</th>
-                <th>Size</th>
-                <th style={{ width: '120px' }}>Quantity</th>
-                <th style={{ width: '220px' }}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {getCartItemsWithCount().map((item) => (
-                <tr key={item.id}>
-                  <td>{item.description}</td>
-                  <td>{item.size}</td>
-                  <td className="text-center align-middle">{item.count}</td>
-                  <td>
-                    <button
-                      className="btn btn-sm btn-success me-2"
-                      onClick={() => handleIncrease(item.id)}
-                      aria-label={`Increase quantity of ${item.description}`}
-                    >
-                      ➕
-                    </button>
-                    <button
-  className="btn btn-sm btn-warning me-2"
-  onClick={() => handleDecrease(item.id)}
-  aria-label={`Decrease quantity of ${item.description}`}
->
+    <>
+      <Navbar user={user} />
+      <div className="container mt-5">
+        <h2 className="mb-4">🛒 Your Shopping Cart</h2>
 
-                      ➖
-                    </button>
-                    <button
-                      className="btn btn-sm btn-danger"
-                      onClick={() => handleRemove(item.id)}
-                      aria-label={`Remove all ${item.description} from cart`}
-                    >
-                      ❌ Remove All
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        {(!cart || !cart.clothingItems.length) ? (
+          <div className="alert alert-info text-center">Your cart is empty. Go add something fashionable!</div>
+        ) : (
+          <div className="card shadow-sm">
+            <div className="card-body">
+              <table className="table table-hover align-middle">
+                <thead className="table-light">
+                  <tr>
+                    <th>Description</th>
+                    <th>Size</th>
+                    <th>Qty</th>
+                    <th className="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {cartItems.map(item => (
+                    <tr key={item.id}>
+                      <td>{item.description}</td>
+                      <td>{item.size}</td>
+                      <td className="text-center fw-bold">{item.count}</td>
+                      <td className="text-end">
+                        <div className="btn-group">
+                          <button
+                            className="btn btn-outline-success btn-sm"
+                            onClick={() => handleIncrease(item.id)}
+                            title="Increase"
+                          >
+                            ➕
+                          </button>
+                          <button
+                            className="btn btn-outline-warning btn-sm"
+                            onClick={() => handleDecrease(item.id)}
+                            title="Decrease"
+                          >
+                            ➖
+                          </button>
+                          <button
+                            className="btn btn-outline-danger btn-sm"
+                            onClick={() => handleRemove(item.id)}
+                            title="Remove All"
+                          >
+                            ❌
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
 
-          <div className="d-flex justify-content-between mt-3">
-            <button className="btn btn-outline-danger" onClick={handleClearCart}>
-              🧹 Clear Cart
-            </button>
-            <button className="btn btn-success" onClick={handlePlaceOrder}>
-              ✅ Place Order
-            </button>
+              <div className="d-flex justify-content-between align-items-center mt-4">
+                <div>
+                  <button className="btn btn-outline-danger me-2" onClick={handleClearCart}>
+                    🧹 Clear Cart
+                  </button>
+                  <button className="btn btn-success" onClick={handlePlaceOrder}>
+                    ✅ Place Order ({cart?.clothingItems?.length} items, ₹{totalPrice})
+                  </button>
+                </div>
+                <div className="fw-bold text-success">
+                  Total: ₹{totalPrice}
+                </div>
+              </div>
+            </div>
           </div>
-        </>
-      )}
-    </div>
+        )}
+      </div>
+      <Footer />
+    </>
   );
 }
 

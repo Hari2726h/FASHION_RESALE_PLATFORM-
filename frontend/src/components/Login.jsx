@@ -1,5 +1,3 @@
-// src/component/Login.jsx
-
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { api } from '../api';
@@ -18,15 +16,12 @@ function Login({ setUser }) {
     setError('');
 
     try {
-      // If admin credentials entered, bypass backend login call
       if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-        // Fake admin user data (no backend call)
         const adminUser = {
           id: 'admin-0000',
           email: ADMIN_EMAIL,
           role: 'ADMIN',
           name: 'Administrator',
-          // add other fields if needed
         };
         setUser(adminUser);
         localStorage.setItem('user', JSON.stringify(adminUser));
@@ -34,11 +29,9 @@ function Login({ setUser }) {
         return;
       }
 
-      // Normal user login flow via backend
       const res = await api.login({ email, password });
       const tokenData = res.data;
 
-      // Fetch full user info by email
       const allUsersRes = await api.getAllUsers();
       const userInfo = allUsersRes.data.find((u) => u.email === email);
 
@@ -47,9 +40,7 @@ function Login({ setUser }) {
         return;
       }
 
-      // Assign USER role (no admin override here)
       const userData = { ...userInfo, role: 'USER' };
-
       setUser(userData);
       localStorage.setItem('user', JSON.stringify(userData));
       navigate('/');
@@ -60,35 +51,52 @@ function Login({ setUser }) {
   };
 
   return (
-    <div className="container mt-5">
-      <h2>Login</h2>
-      {error && <div className="alert alert-danger">{error}</div>}
-      <form onSubmit={handleSubmit} className="p-4 shadow-sm border rounded bg-light">
-        <div className="mb-3">
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="form-control"
-            required
-          />
+    <div className="container d-flex align-items-center justify-content-center" style={{ minHeight: '90vh' }}>
+      <div className="col-md-6 col-lg-5">
+        <div className="card shadow border-0">
+          <div className="card-body p-4">
+            <h3 className="mb-4 text-center text-primary">Login to FashionRental</h3>
+
+            {error && <div className="alert alert-danger">{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+              <div className="mb-3">
+                <label htmlFor="email" className="form-label fw-semibold">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="form-control"
+                  required
+                  placeholder="Enter your email"
+                />
+              </div>
+
+              <div className="mb-3">
+                <label htmlFor="password" className="form-label fw-semibold">Password</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="form-control"
+                  required
+                  placeholder="Enter your password"
+                />
+              </div>
+
+              <div className="d-grid mt-4">
+                <button type="submit" className="btn btn-primary btn-block">Login</button>
+              </div>
+            </form>
+
+            <p className="mt-4 text-center">
+              Don't have an account? <Link to="/register" className="text-decoration-none text-primary">Register here</Link>
+            </p>
+          </div>
         </div>
-        <div className="mb-3">
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="form-control"
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary">Login</button>
-        <p className="mt-3">
-          Don't have an account? <Link to="/register">Register</Link>
-        </p>
-      </form>
+      </div>
     </div>
   );
 }

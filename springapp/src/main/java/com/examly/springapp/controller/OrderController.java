@@ -80,6 +80,13 @@ public ResponseEntity<Order> placeOrderFromCart(@PathVariable Long userId) {
         }
         return ResponseEntity.ok(order);
     }
+    // ✅ User - Get all orders by user ID
+@GetMapping("/user/{userId}")
+public ResponseEntity<List<Order>> getOrdersByUser(@PathVariable Long userId) {
+    List<Order> orders = orderService.getOrdersByUserId(userId);
+    return ResponseEntity.ok(orders);
+}
+
 
     // ✅ Admin or User - Delete an order
     @DeleteMapping("/{orderId}")

@@ -22,6 +22,17 @@ function AdminDashboard() {
             📦 View Orders
           </button>
         </div>
+        {/* Section: Clothing Inventory */}
+        <div className="mb-5">
+          <div className="mb-3">
+            <h4 className="text-secondary fw-semibold border-bottom pb-2">👗 Clothing Inventory</h4>
+          </div>
+          <div className="card shadow-sm border-0">
+            <div className="card-body">
+              <ClothingManagement />
+            </div>
+          </div>
+        </div>
 
         {/* Section: User Management */}
         <div className="mb-5">
@@ -35,17 +46,6 @@ function AdminDashboard() {
           </div>
         </div>
 
-        {/* Section: Clothing Inventory */}
-        <div className="mb-5">
-          <div className="mb-3">
-            <h4 className="text-secondary fw-semibold border-bottom pb-2">👗 Clothing Inventory</h4>
-          </div>
-          <div className="card shadow-sm border-0">
-            <div className="card-body">
-              <ClothingManagement />
-            </div>
-          </div>
-        </div>
       </div>
       <Footer />
     </>

@@ -31,19 +31,19 @@ function Navbar({ user }) {
   };
 
   return (
-    <nav
-      className="navbar navbar-expand-lg shadow-sm sticky-top"
-      style={{ backgroundColor: '#6C63FF' }}
-    >
-      <div className="container">
-        <Link className="navbar-brand text-white fw-bold fs-4" to="/">
-          👗 FashionRental
+    <nav className="navbar navbar-expand-lg navbar-dark sticky-top shadow-sm" style={{ backgroundColor: '#6C63FF' }}>
+      <div className="container-fluid">
+        <Link className="navbar-brand fw-bold fs-4" to="/">
+          👗 FashionHub
         </Link>
         <button
-          className="navbar-toggler text-white"
+          className="navbar-toggler"
           type="button"
           data-bs-toggle="collapse"
           data-bs-target="#navbarContent"
+          aria-controls="navbarContent"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
         >
           <span className="navbar-toggler-icon"></span>
         </button>
@@ -56,7 +56,6 @@ function Navbar({ user }) {
 
             {user?.role === 'ADMIN' && (
               <>
-                
                 <li className="nav-item">
                   <button className="btn btn-link nav-link text-white" onClick={goToOrders}>
                     Orders
@@ -75,16 +74,20 @@ function Navbar({ user }) {
               </>
             )}
 
-            {user?.role === 'USER' && (
-              <>
-                <li className="nav-item">
-                  <Link className="nav-link text-white" to="/cart">Cart</Link>
-                </li>
-                <li className="nav-item">
-                  <Link className="nav-link text-white" to="/profile">Profile</Link>
-                </li>
-              </>
-            )}
+           {user?.role === 'USER' && (
+  <>
+    <li className="nav-item">
+      <Link className="nav-link text-white" to="/cart">Cart</Link>
+    </li>
+    <li className="nav-item">
+      <Link className="nav-link text-white" to="/my-orders">My Orders</Link>
+    </li>
+    <li className="nav-item">
+      <Link className="nav-link text-white" to="/profile">Profile</Link>
+    </li>
+  </>
+)}
+
 
             <li className="nav-item ms-lg-3">
               {user ? (

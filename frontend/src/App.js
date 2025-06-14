@@ -9,6 +9,9 @@ import AdminOrders from './components/AdminOrders';
 import TransactionPage from './components/TransactionPage';
 import AdminReviewPage from './components/AdminReviewPage';
 import UserProfile from './components/UserProfile';
+import MyOrders from './components/MyOrders';
+
+
 function App() {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('user');
@@ -67,6 +70,8 @@ function App() {
         <Route path="/admin/reviews" element={<AdminReviewPage />} />
 <Route path="/profile" element={<UserProfile user={user} />} />
         <Route path="/transaction" element={<TransactionPage user={user} />} />
+        <Route path="/my-orders" element={<MyOrders />} />
+
       </Routes>
     </Router>
   );

@@ -31,6 +31,7 @@ export const api = {
   placeOrderFromCart: (userId) => axios.post(`${API_BASE}/orders/user/${userId}/place`), // User
   getUserOrder: (userId, orderId) => axios.get(`${API_BASE}/orders/user/${userId}/${orderId}`), // User
   deleteOrder: (orderId) => axios.delete(`${API_BASE}/orders/${orderId}`), // Admin or User
+getOrdersByUser: (userId) => axios.get(`${API_BASE}/orders/user/${userId}`),
 
   // ⭐ Reviews
   getAllReviews: () => axios.get(`${API_BASE}/reviews`),

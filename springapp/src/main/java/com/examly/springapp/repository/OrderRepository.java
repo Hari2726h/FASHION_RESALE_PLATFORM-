@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 @Repository
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByConfirmed(boolean confirmed);
+List<Order> findByUserId(Long userId);
 
 
 

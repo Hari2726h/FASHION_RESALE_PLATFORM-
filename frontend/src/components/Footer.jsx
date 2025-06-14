@@ -15,11 +15,13 @@ function Footer() {
           {/* About Section */}
           <div className="col-md-4">
             <h5 className="fw-bold mb-3">👗 FashionRental</h5>
-            <p className="text-muted">
-              Rent, reuse, and redefine fashion. Discover stylish outfits at unbeatable prices — sustainably.
+            <p  color='white' style={{color:'white'}}>
+              Buy, Purchase, and Wear fashion. Discover
+               stylish
+               outfits at unbeatable prices — sustainably.
             </p>
           </div>
-
+          
           {/* Quick Links */}
           <div className="col-md-4">
             <h5 className="fw-bold mb-3">Quick Links</h5>
@@ -40,8 +42,8 @@ function Footer() {
                 </Link>
               </li>
               <li className="mb-2">
-                <Link to="/admin/orders" className="text-white text-decoration-none">
-                  <i className="bi bi-box-seam me-2"></i>Admin Orders
+                <Link to="/profile" className="text-white text-decoration-none">
+                  <i className="bi bi-box-seam me-2"></i>Profile
                 </Link>
               </li>
             </ul>
@@ -51,10 +53,10 @@ function Footer() {
           <div className="col-md-4">
             <h5 className="fw-bold mb-3">Contact Us</h5>
             <p className="mb-2">
-              <i className="bi bi-envelope-fill me-2"></i>support@fashionrental.com
+              <i className="bi bi-envelope-fill me-2"></i>hari2726h@gmail.com
             </p>
             <p className="mb-2">
-              <i className="bi bi-telephone-fill me-2"></i>+91 98765 43210
+              <i className="bi bi-telephone-fill me-2"></i>+91 994310 5704
             </p>
             <div className="d-flex gap-3 fs-5 mt-3">
               <a href="#" className="text-white"><i className="bi bi-facebook"></i></a>

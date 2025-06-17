@@ -1,4 +1,7 @@
- Fashion Product Selling Website – E-commerce Platform
+ Fashion Product Selling Website – E-commerce Platform![Screenshot 2025-06-17 154553](https://github.com/user-attachments/assets/a527e0e7-17d2-41fa-aa9e-8744ca9e105c)
+![Screenshot 2025-06-17 154610](https://github.com/user-attachments/assets/698eec5e-8a69-4333-a445-7d7f5108f914)
+![Screenshot 2025-06-17 154600](https://github.com/user-attachments/assets/89edc1be-5da3-4e21-ad11-c1f18ce6ff8f)
+
 The third major project is a Fashion Product Selling Website, an e-commerce platform I evolved from a backend-only academic project into a complete full-stack solution. Originally developed in my fourth semester with just three controllers (User, Transaction, Data Plotting), I expanded it into a robust system supporting both admin and user functionalities.
 
 I restructured the backend to include 7–8 controllers, supporting user management, orders, and inventory. I implemented admin login using a fixed email/password and provided flexible authentication for general users. Learning from previous deployment issues, I initially skipped advanced security to avoid unnecessary delays.
